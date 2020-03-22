@@ -37,4 +37,3 @@ def serial_read():
             print("disconnection reason - ", str(e))
             ser.is_open = False
             print("disconnected, waiting...")
-            pass
