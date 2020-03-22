@@ -1,6 +1,7 @@
 # from __future__ import print_function
 import sys
-import serial, time
+import serial
+import time
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
@@ -11,11 +12,19 @@ xdata, ydata = [], []
 ln, = plt.plot([], [], 'r', animated=True)
 f = np.linspace(0, 100, 100)
 
+
+# this is the function that returns the values to plot
+def read_values():
+
+    return get_mpu_values()
+
+
 def init():
     ax.set_xlim(0, 100)
     ax.set_ylim(-91, 91)
     ln.set_data(xdata,ydata)
     return ln,
+
 
 def update(frame):
     
@@ -26,7 +35,7 @@ def update(frame):
     # ydata = []
     # except:
     # pass
-    mpu_val = get_mpu_values()
+    mpu_val = read_values()
     xdata.append(frame)
     ydata.append(mpu_val)
     ln.set_data(xdata, ydata)
@@ -43,9 +52,9 @@ def update(frame):
 
     return ln,
 
-get_mpu_values()
 
-ani = animation.FuncAnimation(fig, update, frames=f,
-                    init_func=init, blit=True, interval = 50, repeat=True)
+read_values()
+
+ani = animation.FuncAnimation(fig, update, frames=f, init_func=init, blit=True, interval = 50, repeat=True)
 
 plt.show()            

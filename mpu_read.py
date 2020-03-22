@@ -2,6 +2,7 @@ import serial
 import sys
 import time
 
+
 def get_mpu_values():
     ports = '/dev/ttyUSB'
 
