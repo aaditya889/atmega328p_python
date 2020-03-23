@@ -1,25 +1,29 @@
-import pyaudio
+# import pyaudio
 import numpy as np
-import pylab
+# import pylab
 import matplotlib.pyplot as plt
 from generic_serial_read import *
-from scipy.io import wavfile
+# from scipy.io import wavfile
 import time
 import sys
-MAX_POINTS = 100
+MAX_POINTS = 200
 NUM_PLOTS = 1   # number of graphs to plot
-SERIAL_READ_FUNCTION = temp_serial_read
+SERIAL_READ_FUNCTION = serial_read
+X_LOWER_LIMIT = 0
+X_UPPER_LIMIT = MAX_POINTS
+Y_LOWER_LIMIT = -520
+Y_UPPER_LIMIT = 520
 
 f, ax = plt.subplots(NUM_PLOTS)
 
 # Prepare the Plotting Environment with random starting values
-x = np.arange(10000)
-y = np.random.randn(10000)
+x = np.arange(MAX_POINTS)
+y = np.random.randn(MAX_POINTS)
 
 # Plot 0 is for raw data
 li, = ax.plot(x, y)
-ax.set_xlim(0, MAX_POINTS)
-ax.set_ylim(-5000, 5000)
+ax.set_xlim(X_LOWER_LIMIT, X_UPPER_LIMIT)
+ax.set_ylim(Y_LOWER_LIMIT, Y_UPPER_LIMIT)
 ax.set_title("Raw Signal")
 
 # Plot 1 is for the FFT of the audio
@@ -32,23 +36,22 @@ ax.set_title("Raw Signal")
 plt.pause(0.01)
 plt.tight_layout()
 
-FORMAT = pyaudio.paInt16    # We use 16bit format per sample
-CHANNELS = 1
-RATE = 44100
-CHUNK = MAX_POINTS    # 1024bytes of data red from a buffer
-
-audio = pyaudio.PyAudio()
-
-# start Recording
-stream = audio.open(format=FORMAT,
-                    channels=CHANNELS,
-                    rate=RATE,
-                    input=True)
-
 keep_going = True
 
 
 def old():
+    FORMAT = pyaudio.paInt16  # We use 16bit format per sample
+    CHANNELS = 1
+    RATE = 44100
+    CHUNK = MAX_POINTS  # 1024bytes of data red from a buffer
+
+    audio = pyaudio.PyAudio()
+
+    # start Recording
+    stream = audio.open(format=FORMAT,
+                        channels=CHANNELS,
+                        rate=RATE,
+                        input=True)
     # Open the connection and start streaming the data
     stream.start_stream()
     print("\n+---------------------------------+")
@@ -93,5 +96,6 @@ def plot_data(in_data):
 
 data = [0] * MAX_POINTS
 while True:
+    data = SERIAL_READ_FUNCTION(MAX_POINTS)
+    # print(data)
     plot_data(data)
-    data = data[1:] + [SERIAL_READ_FUNCTION()]

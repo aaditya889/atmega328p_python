@@ -7,7 +7,7 @@ file_fd = None
 serial_port = None
 
 
-def serial_read():
+def serial_read(num):
 
     global serial_port
     if serial_port is None:
@@ -18,28 +18,32 @@ def serial_read():
         serial_port = serial.Serial()
         serial_port.baudrate = SERIAL_BAUD_RATE
 
-        while True:
-            try:
-                while not serial_port.is_open:
-                    for num in range(max_port + 1):
-                        try:
-                            port = ports + str(num)
-                            serial_port.port = port
-                            serial_port.open()
-                            break
-                        except Exception as e:
-                            pass
+        try:
+            while not serial_port.is_open:
+                for num in range(max_port + 1):
+                    try:
+                        port = ports + str(num)
+                        serial_port.port = port
+                        serial_port.open()
+                        break
+                    except Exception as e:
+                        pass
 
-                while True:
-                    serial_data = serial_port.readline().decode()
-                    return serial_data
+        except Exception as e:
+            print("disconnection reason - ", str(e))
+            serial_port.is_open = False
+            print("disconnected, waiting...")
 
-            except Exception as e:
-                print("disconnection reason - ", str(e))
-                serial_port.is_open = False
-                print("disconnected, waiting...")
-    else:
-        return serial_port.readline().decode()
+    serial_data = list()
+    for i in range(num):
+        try:
+            serial_data.append(int(serial_port.readline().decode()) - 512)
+        except UnicodeDecodeError:
+            i -= 1
+        except ValueError:
+            i -= 1
+            
+    return serial_data
 
 
 def temp_serial_read():
