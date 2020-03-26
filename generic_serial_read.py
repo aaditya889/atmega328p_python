@@ -9,6 +9,8 @@ serial_port = None
 
 def serial_read(num):
 
+    subtract_value = 512
+
     global serial_port
     if serial_port is None:
         ports = USB_SERIAL_PORT
@@ -37,7 +39,7 @@ def serial_read(num):
     serial_data = list()
     for i in range(num):
         try:
-            serial_data.append(int(serial_port.readline().decode()) - 512)
+            serial_data.append(int(serial_port.readline().decode()) - subtract_value)
         except UnicodeDecodeError:
             i -= 1
         except ValueError:
