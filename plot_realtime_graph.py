@@ -7,7 +7,7 @@ from udp_server import *
 # from scipy.io import wavfile
 import time
 import sys
-MAX_POINTS = 200
+MAX_POINTS = 500
 NUM_PLOTS = 1   # number of graphs to plot
 SERIAL_READ_FUNCTION = read_udp_data
 X_LOWER_LIMIT = 0

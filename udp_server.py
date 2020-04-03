@@ -1,4 +1,5 @@
 import socket
+import struct
 
 UDP_IP = "192.168.1.17"
 UDP_PORT = 8000
@@ -14,28 +15,35 @@ def read_udp_data(num):
     serial_data = list()
     filled = 0
     while filled < num:
-        data, addr = sock.recvfrom(100)
+        data, addr = sock.recvfrom(1000)
         # print("received message:", [dat for dat in data])
-        for dat in range(1, len(data)-1, 2):
-            new = data[dat+1]
-            new = (new << 8) | data[dat]
-            dat += 1
+        for dat in range(0, len(data), 2):
+            new = data[dat]
+            new = (new << 8) | data[dat+1]
+            # dat += 1
             serial_data.append(new - subtract_value)
+            # print(dat - subtract_value)
             filled += 1
-    return serial_data
+    return serial_data[0:num+1]
 
 
 def read_udp_data_indefinite():
 
     while True:
-        data, addr = sock.recvfrom(1024)  # buffer size is 1024 bytes
+        data, addr = sock.recvfrom(1000)
         # print("received message:", [dat for dat in data])
-        for dat in range(1, len(data)-1, 2):
-            new = data[dat+1]
-            new = (new << 8) | data[dat]
-            dat += 1
+        print(data)
+        print(len(data))
+        for dat in range(0, len(data), 2):
+            new = data[dat]
+            new = (new << 8) | data[dat+1]
+            # new = struct.unpack('B', data[dat])[0]
+            # new = (new << 8) | data[dat]
+            # dat += 1
             # serial_data.append(new - subtract_value)
-            print(new)
+            # print(dat - subtract_value)
+            print(new, end=' ')
+        print("done")
 
 
 if __name__ == '__main__':
