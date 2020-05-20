@@ -32,21 +32,24 @@ def read_udp_data(num):
 
 def read_udp_data_indefinite():
 
+    print("%s Listening on %d" % (UDP_IP, UDP_PORT))
     while True:
-        data, addr = sock.recvfrom(1000)
-        # print("received message:", [dat for dat in data])
-        print(data)
-        print(len(data))
-        for dat in range(0, len(data), 2):
-            new = data[dat]
-            new = (new << 8) | data[dat+1]
-            # new = struct.unpack('B', data[dat])[0]
-            # new = (new << 8) | data[dat]
-            # dat += 1
-            # serial_data.append(new - subtract_value)
-            # print(dat - subtract_value)
-            print(new, end=' ')
-        print("done")
+        data = sock.recv(1000)
+        print(data.decode())
+        # print(len(data))
+        # for dat in range(0, len(data), 2):
+        #     new = data[dat]
+        #     new = (new << 8) | data[dat+1]
+        #     # new = struct.unpack('B', data[dat])[0]
+        #     # new = (new << 8) | data[dat]
+        #     # dat += 1
+        #     # serial_data.append(new - subtract_value)
+        #     # print(dat - subtract_value)
+        #     print(new, end=' ')
+        # print("done")
+
+if __name__ == '__main__':
+    read_udp_data_indefinite()
 
 
 if __name__ == '__main__':
