@@ -1,7 +1,5 @@
 import serial
-import sys
-import time
-from constants import *
+from old.constants import *
 
 file_fd = None
 serial_port = None
@@ -60,6 +58,7 @@ def temp_serial_read():
         file_fd = open('temp_data', 'r')
         line = file_fd.readline()[:-1]
 
+    # print(int(line) % 1024)
     return int(line) % 1024
 
 

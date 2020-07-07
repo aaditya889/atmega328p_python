@@ -71,9 +71,13 @@ class ScrollableGraph:
     plot_limits = self.plot_limits
     for graph_idx in range(self.n_graphs):
       if not in_sync:
+        try:
+            generator_function = generator_functions[graph_idx]
+        except IndexError:
+            generator_function = None
         self.animations.append(FuncAnimation(fig=self.fig,
                                              func=self.animate_wrapper(
-                                             generator_functions[graph_idx],
+                                             generator_function,
                                              self.graphs[graph_idx],
                                              plot_limits[self.graph_mapping[graph_idx]][0],
                                              plot_limits[self.graph_mapping[graph_idx]][1],
@@ -94,7 +98,8 @@ class ScrollableGraph:
 
   def animate_wrapper(self, generator_function, graphs, xrange_low, xrange_high, data_queue):
     def animate(i):
-      generator_function()
+      if generator_function is not None:
+        generator_function()
       x = np.linspace(xrange_low, xrange_high, xrange_high)
       graphs.set_data(x, data_queue)
     return animate
@@ -104,7 +109,10 @@ class ScrollableGraph:
     graph_mapping = self.graph_mapping
     def animate(i):
       for idx in range(len(graphs)):
-        generator_functions[idx]()
+        try:
+            generator_functions[idx]()
+        except IndexError:
+            pass
         x = np.linspace(xrange[graph_mapping[idx]][0], xrange[graph_mapping[idx]][1], xrange[graph_mapping[idx]][1])
         graphs[idx].set_data(x, data_queue[idx])
     return animate
@@ -113,45 +121,34 @@ class ScrollableGraph:
     plt.show()
 
 
-def test_gen():
-  dq.extend([random.randint(1,100)])
-  del dq[0]
-
-
-def test_gen2():
-  dq2.extend([random.randint(1, 100)])
-  del dq2[0]
-
-def test_gen3():
-  dq3.extend([random.randint(1, 100)])
-  del dq3[0]
-
-def test_gen4():
-  dq4.extend([random.randint(1, 100)])
-  del dq4[0]
-
-def test_gen5():
-  dq5.extend([random.randint(1, 100)])
-  del dq5[0]
-
-def test_gen6():
-  dq6.extend([random.randint(1, 100)])
-  del dq6[0]
+# def test_gen():
+#   dq.extend([random.randint(1,100), random.randint(1,100), random.randint(1,100), random.randint(1,100)])
+#   del dq[0:4]
+#   dq6.extend([random.randint(1,100), random.randint(1,100), random.randint(1,100), random.randint(1,100)])
+#   del dq6[0:4]
+#   dq5.extend([random.randint(1,100), random.randint(1,100), random.randint(1,100), random.randint(1,100)])
+#   del dq5[0:4]
+#   dq4.extend([random.randint(1,100), random.randint(1,100), random.randint(1,100), random.randint(1,100)])
+#   del dq4[0:4]
+#   dq3.extend([random.randint(1,100), random.randint(1,100), random.randint(1,100), random.randint(1,100)])
+#   del dq3[0:4]
+#   dq2.extend([random.randint(1,100), random.randint(1,100), random.randint(1,100), random.randint(1,100)])
+#   del dq2[0:4]
 
 # print([random.randint(1, 100)])
 # print([random.randint(1, 100)])
 
-dq = [0] * 20
-dq2 = [50] * 20
-dq3 = [50] * 20
-dq4 = [50] * 20
-dq5 = [50] * 20
-dq6 = [50] * 20
-
-s = ScrollableGraph()
-s.init_subplots([2, 2])
-s.init_graphs([[1, len(dq), -100, 100], [1, len(dq2), 1, 100], [1, len(dq3), 1, 100], [1, len(dq4), 1, 100],  [1, len(dq5), 1, 100],  [1, len(dq6), 1, 100]],
-              plot_colours=['cyan', 'red', 'blue', 'green', 'yellow', 'black'], graph_mapping=[0, 0, 1, 1, 2, 2])
-s.init_graph_generators(generator_functions=[test_gen, test_gen2, test_gen3, test_gen4, test_gen5, test_gen6], intervals_in_ms=[1, 1, 1, 1, 1, 1],
-                        data_queue=[dq, dq2, dq3, dq4, dq5, dq6], in_sync=True)
-s.show_graphs()
+# dq = [0] * 20
+# dq2 = [50] * 20
+# dq3 = [50] * 20
+# dq4 = [50] * 20
+# dq5 = [50] * 20
+# dq6 = [50] * 20
+#
+# s = ScrollableGraph()
+# s.init_subplots([2, 2])
+# s.init_graphs([[1, len(dq), -100, 100], [1, len(dq2), 1, 100], [1, len(dq3), 1, 100], [1, len(dq4), 1, 100],  [1, len(dq5), 1, 100],  [1, len(dq6), 1, 100]],
+#               plot_colours=['cyan', 'red', 'blue', 'green', 'yellow', 'black'], graph_mapping=[0, 0, 1, 1, 2, 2])
+# s.init_graph_generators(generator_functions=[test_gen], intervals_in_ms=[1, 1, 1, 1, 1, 1],
+#                         data_queue=[dq, dq2, dq3, dq4, dq5, dq6], in_sync=True)
+# s.show_graphs()

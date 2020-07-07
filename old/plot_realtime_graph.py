@@ -2,11 +2,8 @@
 import numpy as np
 # import pylab
 import matplotlib.pyplot as plt
-from generic_serial_read import *
-from udp_server import *
+from old.udp_server import *
 # from scipy.io import wavfile
-import time
-import sys
 MAX_POINTS = 100
 NUM_PLOTS = 1   # number of graphs to plot
 SERIAL_READ_FUNCTION = read_udp_data_indefinite

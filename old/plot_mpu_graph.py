@@ -1,18 +1,15 @@
 # from __future__ import print_function
-import sys
-import serial
-import time
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
-from mpu_read import *
-from generic_serial_read import *
+from old.udp_server import *
+
 # this is the function that returns the values to plot
-serial_read_function = temp_serial_read
+serial_read_function = read_udp_data_mpu
 X_UPPER_LIMIT = 100
 X_LOWER_LIMIT = 0
-Y_UPPER_LIMIT = 1024
-Y_LOWER_LIMIT = -1024
+Y_UPPER_LIMIT = 90
+Y_LOWER_LIMIT = -90
 
 
 fig, ax = plt.subplots()
@@ -29,6 +26,7 @@ def init():
     ax.set_xlim(X_LOWER_LIMIT, X_UPPER_LIMIT)
     ax.set_ylim(Y_LOWER_LIMIT, Y_UPPER_LIMIT)
     ln.set_data(xdata,ydata)
+    serial_read_function()
     return ln,
 
 
@@ -41,7 +39,14 @@ def update(frame):
     # ydata = []
     # except:
     # pass
-    data_value = serial_read_function()
+    try:
+        while len(data_queue) == 0:
+            pass
+    except KeyboardInterrupt:
+        print("Keyboard interrupt, exiting...")
+        exit(0)
+
+    data_value = data_queue.pop(0)
     xdata.append(frame)
     ydata.append(data_value)
     ln.set_data(xdata, ydata)
