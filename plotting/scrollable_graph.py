@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
 import random
+from lib.parallel_processing import *
 
 
 class ScrollableGraph:
@@ -35,7 +36,10 @@ class ScrollableGraph:
     subplots = list()
     if axb_plots[0] == 1 or axb_plots[1] == 1:
       self.fig, axs = plt.subplots(axb_plots[0], axb_plots[1])
-      subplots.extend(axs)
+      try:
+        subplots.extend(axs)
+      except TypeError:
+        subplots.extend([axs])
     else:
       self.fig, axs = plt.subplots(axb_plots[0], axb_plots[1])
       for idx1 in range(axb_plots[0]):
@@ -65,6 +69,7 @@ class ScrollableGraph:
     self.plot_colours = plot_colours
     self.plot_line_width = plot_line_width
 
+  @multi_thread('22222')
   def init_graph_generators(self, generator_functions: list = None, intervals_in_ms: list = None,
                             data_queue: list = None, in_sync=True):
 
@@ -109,10 +114,11 @@ class ScrollableGraph:
     graph_mapping = self.graph_mapping
     def animate(i):
       for idx in range(len(graphs)):
-        try:
-            generator_functions[idx]()
-        except IndexError:
-            pass
+        # try:
+        #     generator_functions[idx]()
+        # except IndexError:
+        #     pass
+        # print(data_queue)
         x = np.linspace(xrange[graph_mapping[idx]][0], xrange[graph_mapping[idx]][1], xrange[graph_mapping[idx]][1])
         graphs[idx].set_data(x, data_queue[idx])
     return animate

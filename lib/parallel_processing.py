@@ -25,3 +25,24 @@ def multi_thread(thread_list_identifier):
         return wrapper
 
     return decorator
+
+
+def multi_process(process_list_identifier):
+
+    def decorator(function):
+
+        def wrapper(*args, **kwargs):
+
+            global running_processes
+
+            if process_list_identifier not in running_processes:
+                running_processes[process_list_identifier] = list()
+
+            process = Process(target=function, args=tuple(args), kwargs=kwargs)
+            process.start()
+
+            running_processes[process_list_identifier].append(process)
+
+        return wrapper
+
+    return decorator
