@@ -64,7 +64,8 @@ def read_udp_data(num):
 def read_udp_data_indefinite():
     while True:
         data = sock.recv(1000).decode()
-        print(data)
+        if not data.startswith('DBG::'):
+            print(data)
 
 
 @multi_thread('mpu_read')

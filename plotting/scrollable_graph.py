@@ -31,42 +31,51 @@ class ScrollableGraph:
     mpl.rcParams['ytick.major.size'] = 10
     mpl.rcParams['ytick.major.width'] = 2
 
-  def init_subplots(self,  axb_plots: list):
+    self.fig = None
+
+  def init_subplots(self, axb_plots: list, plot_size_ratios: dict):
 
     subplots = list()
+    self.fig, axs = plt.subplots(axb_plots[0], axb_plots[1], figsize=(16, 7.7), gridspec_kw=plot_size_ratios)
     if axb_plots[0] == 1 or axb_plots[1] == 1:
-      self.fig, axs = plt.subplots(axb_plots[0], axb_plots[1])
       try:
         subplots.extend(axs)
       except TypeError:
         subplots.extend([axs])
     else:
-      self.fig, axs = plt.subplots(axb_plots[0], axb_plots[1])
       for idx1 in range(axb_plots[0]):
         for idx2 in range(axb_plots[1]):
           subplots.append(axs[idx1][idx2])
     self.subplots = subplots
     self.n_plots = axb_plots[0] * axb_plots[1]
 
-  def init_graphs(self, plot_limits: list, plot_line_width: float = 1.5, plot_colours: list = None,
-                  graph_mapping: list = None):
+  def init_graphs(self, plot_limits: list, plot_line_width: float = 1.5, graph_colours: list = None,
+                  graph_mapping: list = None, graph_labels: list[list[str]] = [], graph_legends: list = []):
     subplots = self.subplots
     self.n_graphs = len(graph_mapping)
     self.graph_mapping = graph_mapping
+    # CHECK THIS AGAIN
+    assert self.n_plots == len(graph_labels)
+
+    for graph_idx in range(self.n_graphs):
+      assert graph_mapping[graph_idx] < self.n_plots
+      colour = graph_colours[graph_idx] if graph_colours else self.colors(random.randint(1, 99))
+      self.graphs.append(subplots[graph_mapping[graph_idx]].plot([], [], linewidth=plot_line_width)[0])
+      self.graphs[graph_idx].set_color(colour)
 
     for subplot_idx in range(self.n_plots):
       subplots[subplot_idx].set_xlim(plot_limits[subplot_idx][0], plot_limits[subplot_idx][1])
       subplots[subplot_idx].set_ylim(plot_limits[subplot_idx][2], plot_limits[subplot_idx][3])
       subplots[subplot_idx].grid(True)
-
-    for graph_idx in range(self.n_graphs):
-      assert graph_mapping[graph_idx] < self.n_plots
-      colour = plot_colours[graph_idx] if plot_colours else self.colors(random.randint(1, 99))
-      self.graphs.append(subplots[graph_mapping[graph_idx]].plot([], [], linewidth=plot_line_width)[0])
-      self.graphs[graph_idx].set_color(colour)
+      subplots[subplot_idx].set_title(graph_labels[subplot_idx][0])
+      subplots[subplot_idx].set_xlabel(graph_labels[subplot_idx][1])
+      subplots[subplot_idx].set_ylabel(graph_labels[subplot_idx][2])
+      legend = graph_legends[subplot_idx] if graph_legends else None
+      if legend:
+        subplots[subplot_idx].legend(legend, bbox_to_anchor=(1., 1), loc=2)
 
     self.plot_limits = plot_limits
-    self.plot_colours = plot_colours
+    self.plot_colours = graph_colours
     self.plot_line_width = plot_line_width
 
   @multi_thread('22222')
@@ -114,47 +123,10 @@ class ScrollableGraph:
     graph_mapping = self.graph_mapping
     def animate(i):
       for idx in range(len(graphs)):
-        # try:
-        #     generator_functions[idx]()
-        # except IndexError:
-        #     pass
-        # print(data_queue)
         x = np.linspace(xrange[graph_mapping[idx]][0], xrange[graph_mapping[idx]][1], xrange[graph_mapping[idx]][1])
         graphs[idx].set_data(x, data_queue[idx])
     return animate
 
-  def show_graphs(self):
+  def show_plots(self, **kwargs):
+    plt.subplots_adjust(**kwargs)
     plt.show()
-
-
-# def test_gen():
-#   dq.extend([random.randint(1,100), random.randint(1,100), random.randint(1,100), random.randint(1,100)])
-#   del dq[0:4]
-#   dq6.extend([random.randint(1,100), random.randint(1,100), random.randint(1,100), random.randint(1,100)])
-#   del dq6[0:4]
-#   dq5.extend([random.randint(1,100), random.randint(1,100), random.randint(1,100), random.randint(1,100)])
-#   del dq5[0:4]
-#   dq4.extend([random.randint(1,100), random.randint(1,100), random.randint(1,100), random.randint(1,100)])
-#   del dq4[0:4]
-#   dq3.extend([random.randint(1,100), random.randint(1,100), random.randint(1,100), random.randint(1,100)])
-#   del dq3[0:4]
-#   dq2.extend([random.randint(1,100), random.randint(1,100), random.randint(1,100), random.randint(1,100)])
-#   del dq2[0:4]
-
-# print([random.randint(1, 100)])
-# print([random.randint(1, 100)])
-
-# dq = [0] * 20
-# dq2 = [50] * 20
-# dq3 = [50] * 20
-# dq4 = [50] * 20
-# dq5 = [50] * 20
-# dq6 = [50] * 20
-#
-# s = ScrollableGraph()
-# s.init_subplots([2, 2])
-# s.init_graphs([[1, len(dq), -100, 100], [1, len(dq2), 1, 100], [1, len(dq3), 1, 100], [1, len(dq4), 1, 100],  [1, len(dq5), 1, 100],  [1, len(dq6), 1, 100]],
-#               plot_colours=['cyan', 'red', 'blue', 'green', 'yellow', 'black'], graph_mapping=[0, 0, 1, 1, 2, 2])
-# s.init_graph_generators(generator_functions=[test_gen], intervals_in_ms=[1, 1, 1, 1, 1, 1],
-#                         data_queue=[dq, dq2, dq3, dq4, dq5, dq6], in_sync=True)
-# s.show_graphs()
